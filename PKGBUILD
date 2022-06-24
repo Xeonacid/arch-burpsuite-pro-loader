@@ -1,7 +1,7 @@
 # Maintainer: freb
 
 pkgname=burpsuite-pro
-pkgver=2022.2.3
+pkgver=2022.6.1
 pkgrel=1
 pkgdesc="An integrated platform for performing security testing of web applications (professional edition)"
 url="https://portswigger.net/burp/"
@@ -16,7 +16,7 @@ source=("${pkgname}-${pkgver}.jar::https://portswigger.net/burp/releases/downloa
         icon128.png
         splash.png)
 install=burpsuite-pro.install
-sha256sums=('08a50f8a7e8d2f3f9097dc8a953d040c91514a57b2fc76ebfcc5758bab4c58cd'
+sha256sums=('b2f54e69fbe9f0abf4c29f0776e2d99b1528ec7cfbcce3ff6e4dc37611f5cced'
             '1e54fbbaf3423c8b15b2507cb1e8c18092b0f728aa705ef8d235ac4300cd3e29'
             '740a01fd3feacee5b0563edc4c6634219d367bf2590ecfc954959a95354506c8'
             'f9b8bedbab02c8f0e03b2f5e3f99fa003c58d767168c3c4aa135233b3b533d4b'
@@ -29,19 +29,18 @@ prepare() {
 }
 
 package() {
-  mkdir -p ${pkgdir}/usr/bin
-  mkdir -p ${pkgdir}/opt/BurpSuite
-  mkdir -p ${pkgdir}/usr/share/{applications,pixmaps}
+ mkdir -p ${pkgdir}/usr/bin
+  mkdir -p ${pkgdir}/usr/share/{applications,pixmaps,${pkgname}}
 
   cd ${srcdir}
-  install -m644 ${pkgname}-${pkgver}.jar ${pkgdir}/opt/BurpSuite/${pkgname}.jar
-  install -m644 burp-loader-x-Ai.jar ${pkgdir}/opt/BurpSuite/burp-loader-x-Ai.jar
+  install -m644 ${pkgname}-${pkgver}.jar ${pkgdir}/usr/share/${pkgname}/${pkgname}.jar
+  install -m644 burp-loader-x-Ai.jar ${pkgdir}/usr/share/${pkgname}/burp-loader-x-Ai.jar
   install -m644 burpsuite-pro.desktop ${pkgdir}/usr/share/applications/
   install -m644 icon128.png ${pkgdir}/usr/share/pixmaps/burpsuite-pro.png
   install -m644 splash.png ${pkgdir}/usr/share/pixmaps/burpsuite-pro-splash.png
 
   # Create startup file for burpsuite-pro.
   echo "#!/bin/sh" > ${pkgdir}/usr/bin/${pkgname}
-  echo "exec \"\$JAVA_HOME/bin/java\" \"-splash:/usr/share/pixmaps/burpsuite-pro-splash.png\" \"--illegal-access=permit\" \"-Dfile.encoding=utf-8\" \"-noverify\" \"-javaagent:/opt/BurpSuite/burp-loader-x-Ai.jar\" \"-Xmx2048m\" \"-jar\" \"/opt/BurpSuite/${pkgname}.jar\" \"\$@\"" >> ${pkgdir}/usr/bin/${pkgname}
+  echo "exec \"\$JAVA_HOME/bin/java\" \"-splash:/usr/share/pixmaps/burpsuite-pro-splash.png\" \"--add-opens\" \"java.base/java.lang=ALL-UNNAMED\" \"--add-opens\" \"java.base/javax.crypto=ALL-UNNAMED\" \"--add-opens\" \"java.desktop/javax.swing=ALL-UNNAMED\" \"--illegal-access=permit\" \"-Dfile.encoding=utf-8\" \"-noverify\" \"-javaagent:/usr/share/${pkgname}/burp-loader-x-Ai.jar\" \"-Xmx2048m\" \"-jar\" \"/usr/share/${pkgname}/${pkgname}.jar\" \"\$@\"" >> ${pkgdir}/usr/bin/${pkgname}
   chmod 755 ${pkgdir}/usr/bin/${pkgname}
 }
